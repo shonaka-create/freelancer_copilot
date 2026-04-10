@@ -11,19 +11,7 @@ const initialColumns = [
   { id: 'applied', title: '応募中' },
   { id: 'negotiating', title: '商談中' },
   { id: 'active', title: '稼働中' },
-  { id: 'completed', title: '完了 / 失注' }
-];
 
-const mockTasks = [
-  { id: 'mock-1', status: 'applied', title: 'React SPA開発ポータル', platform: 'クラウドワークス', description: 'https://...\n¥300,000' },
-  { id: 'mock-2', status: 'applied', title: 'コーポレートサイト保守', platform: 'ランサーズ', description: 'https://...\n¥100,000' },
-  { id: 'mock-3', status: 'negotiating', title: 'LPリニューアル', platform: '直営業(X)', description: 'https://...\n¥150,000' },
-  { id: 'mock-4', status: 'negotiating', title: '新規メディア立ち上げ設計', platform: 'A社紹介', description: 'https://...\n¥500,000' },
-  { id: 'mock-5', status: 'active', title: 'コーポレートサイト要件定義', platform: '株式会社テック', description: 'https://...\n¥800,000' },
-  { id: 'mock-6', status: 'active', title: 'Vue -> React 移行', platform: 'B株式会社', description: 'https://...\n¥1,200,000' },
-  { id: 'mock-7', status: 'completed', title: 'WordPressブログ構築', platform: 'クラウドワークス', description: 'https://...\n¥80,000' },
-  { id: 'mock-8', status: 'completed', title: 'SNS運用代行ツール開発', platform: 'C社', description: 'https://...\n失注' },
-];
 
 function DroppableColumn({ column, children }: any) {
   const { isOver, setNodeRef } = useDroppable({ id: column.id });
@@ -86,12 +74,7 @@ export default function Home() {
   useEffect(() => {
     // Load tasks from Supabase
     getApplications().then(data => {
-      // DBが空の場合はモックデータを表示する（MVP用）
-      if (data && data.length > 0) {
-        setTasks(data);
-      } else {
-        setTasks(mockTasks);
-      }
+      if (data) setTasks(data);
       setLoading(false);
     });
   }, []);
@@ -121,9 +104,6 @@ export default function Home() {
     // Optimistic UI Update
     setTasks(prev => prev.map(t => t.id === active.id ? { ...t, status: newStatus } : t));
 
-    // Mock data check (avoid saving to DB for demo data)
-    if (String(active.id).startsWith('mock-')) return;
-
     // Save to Supabase
     const result = await updateApplicationStatus(active.id, newStatus);
     if (!result.success) {
@@ -139,7 +119,6 @@ export default function Home() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <h1>案件ダッシュボード (Kanban)</h1>
-            <span style={{ fontSize: '0.75rem', background: '#DBEAFE', color: 'var(--primary-dark)', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>Supabase 連携済</span>
           </div>
           <p style={{ color: 'var(--text-secondary)' }}>進行中の案件ステータスをドラッグ＆ドロップで管理</p>
         </div>
