@@ -6,9 +6,13 @@ import { revalidatePath } from 'next/cache';
 // Fetch applications for Kanban
 export async function getApplications() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
   const { data, error } = await supabase
     .from('applications')
     .select('*')
+    .eq('user_id', user.id) // Enforce user boundaries
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -28,19 +32,20 @@ export async function createApplication(formData: FormData) {
   const amount = formData.get('amount') as string;
   const proposalText = formData.get('proposalText') as string;
 
-  // For MVP testing without Auth, we will try to insert without user_id.
-  // Note: if your DB still has `user_id NOT NULL` and RLS enabled, this will fail.
-  // We recommend running `ALTER TABLE applications DISABLE ROW LEVEL SECURITY;`
-  // and `ALTER TABLE applications ALTER COLUMN user_id DROP NOT NULL;` for testing.
-  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { success: false, error: 'User is not authenticated' };
+  }
+
   const { data, error } = await supabase
     .from('applications')
     .insert([{
       title,
       platform,
-      description: url + '\n' + amount, // Temporary merge for MVP
+      description: url + '\n' + amount,
       proposal_text: proposalText,
-      status: 'applied' // default column ID mapping
+      status: 'applied',
+      user_id: user.id
     }])
     .select()
     .single();
@@ -57,10 +62,14 @@ export async function createApplication(formData: FormData) {
 // Update status (when dragging and dropping)
 export async function updateApplicationStatus(id: string, newStatus: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Unauthorized' };
+
   const { error } = await supabase
     .from('applications')
     .update({ status: newStatus })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', user.id);
 
   if (error) {
     console.error('Error updating status:', error);
