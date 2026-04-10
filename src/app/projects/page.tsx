@@ -1,89 +1,104 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Calendar, CheckCircle2, Lock, Plus } from 'lucide-react';
+import { Calendar, Bell, Circle, CheckCircle2, Clock } from 'lucide-react';
 
-export default function ProjectsPage() {
+const mockMilestones = [
+  { id: '1', date: '2026-04-12', title: '【A社】LPコーディング初回納品', type: 'deadline', status: 'pending', projectName: 'A社 LPリニューアル' },
+  { id: '2', date: '2026-04-15', title: '【B社】見積もり再提示・状況確認', type: 'followup', status: 'pending', projectName: 'B社 新規システム開発' },
+  { id: '3', date: '2026-04-20', title: '【C社】保守契約のアップセル提案', type: 'upsell', status: 'pending', projectName: 'C社 サイト保守' },
+  { id: '4', date: '2026-04-05', title: '【D社】要件定義書 提出', type: 'deadline', status: 'completed', projectName: 'D社 メディア構築' },
+];
+
+export default function ProjectsCalendarPage() {
+  const [milestones, setMilestones] = useState(mockMilestones);
+
+  const pending = milestones.filter(m => m.status === 'pending').sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const completed = milestones.filter(m => m.status === 'completed');
+
+  const toggleStatus = (id: string, current: string) => {
+    setMilestones(prev => prev.map(m => m.id === id ? { ...m, status: current === 'pending' ? 'completed' : 'pending' } : m));
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'var(--text-secondary)' }}>← ダッシュボードへ</Link>
-            <h1>稼働中案件・マイルストーン管理</h1>
-          </div>
-          <p style={{ color: 'var(--text-secondary)' }}>納期・フォローアップ予定日を手動で設定して忘却を防止。</p>
+          <h1>スケジュール・マイルストーン管理</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>すべての案件の「納期」「フォローアップ日」を横断して確認します。</p>
         </div>
+        <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Calendar size={18} /> 予定を手動追加
+        </button>
       </header>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 2fr) 1fr', gap: '2rem' }}>
         
-        {/* Project Card */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', background: '#D1FAE5', color: '#059669', borderRadius: '4px', fontWeight: 'bold' }}>稼働中</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>A社（直契約）</span>
-              </div>
-              <h2 style={{ margin: 0 }}>コーポレートサイトフルリニューアル要件定義・設計</h2>
-              <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                受注額: ¥800,000
-              </div>
-            </div>
-            
-            {/* Automatic Followup Upsell */}
-            <div style={{ background: '#F8FAFC', border: '1px dashed #CBD5E1', padding: '12px', borderRadius: '6px', maxWidth: '280px' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lock size={14} color="var(--primary-color)"/> 自動フォローアップ通知 <span style={{ background: '#DBEAFE', color: 'var(--primary-color)', padding: '2px 4px', borderRadius: '4px', fontSize: '0.65rem' }}>PRO</span>
-              </div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '8px 0 0 0' }}>
-                納品後や契約終了前に、継続案件を獲得するためのアップセル打診メールをAIが自動作成し、最適なタイミングで通知します。
-              </p>
+        {/* Main List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          <div>
+            <h2 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+              <Clock size={20} color="var(--primary-color)" /> 直近の予定（未完了）
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {pending.map(m => (
+                <div key={m.id} className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '12px 16px', borderLeft: m.type === 'deadline' ? '4px solid #EF4444' : m.type === 'upsell' ? '4px solid #F59E0B' : '4px solid #3B82F6' }}>
+                  <div style={{ cursor: 'pointer' }} onClick={() => toggleStatus(m.id, m.status)}>
+                    <Circle size={24} color="var(--surface-border)" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '2px', fontWeight: 'bold' }}>{m.date} - {m.projectName}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600 }}>{m.title}</div>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', background: '#F1F5F9', padding: '4px 8px', borderRadius: '6px', color: 'var(--text-secondary)' }}>
+                    {m.type === 'deadline' ? '納期' : m.type === 'upsell' ? '提案' : 'フォロー'}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>カレンダー・マイルストーン (手動)</h4>
-              <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Plus size={14} /> 予定を追加
-              </button>
+          <div style={{ marginTop: '1rem' }}>
+            <h2 style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+              完了済みの予定
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', opacity: 0.6 }}>
+              {completed.map(m => (
+                <div key={m.id} className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '12px 16px', background: '#F8FAFC' }}>
+                  <div style={{ cursor: 'pointer' }} onClick={() => toggleStatus(m.id, m.status)}>
+                    <CheckCircle2 size={24} color="#10B981" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '2px', textDecoration: 'line-through' }}>{m.date} - {m.projectName}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)', textDecoration: 'line-through' }}>{m.title}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#F8FAFC', border: '1px solid var(--surface-border)', padding: '12px 16px', borderRadius: '8px' }}>
-               <CheckCircle2 size={24} color="#10B981" />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-secondary)', textDecoration: 'line-through' }}>キックオフ＆ヒアリング完了</div>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={14} /> 2026/04/01
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#FFFFFF', border: '1px solid var(--surface-border)', padding: '12px 16px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid #CBD5E1' }}></div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>ワイヤーフレーム初回提出</div>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={14} /> 2026/04/15
-              </div>
-            </div>
+          </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#FEF2F2', border: '1px solid #FECACA', padding: '12px 16px', borderRadius: '8px' }}>
-              <div style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>!</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#B91C1C' }}>手動設定：保守運用プランの打診</div>
-                <div style={{ fontSize: '0.8rem', color: '#DC2626' }}>※忘れずに連絡を入れる（手動タスク）</div>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#B91C1C', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={14} /> 2026/04/20
-              </div>
-            </div>
-            
+        </div>
+
+        {/* Sidebar Upsell */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="glass-panel" style={{ background: 'linear-gradient(to bottom right, #F8FAFC, #FFFFFF)' }}>
+            <h3 style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', marginTop: 0 }}>
+              <Bell size={18} color="var(--primary-color)" /> リマインダー <span style={{ fontSize: '0.7rem', background: '#DBEAFE', color: 'var(--primary-dark)', padding: '2px 6px', borderRadius: '4px' }}>PRO</span>
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Proプランでは、納期の3日前や「連絡が途絶えてから1週間後」などに、LINEやSlackへ自動でリマインド通知を送ることができます。
+            </p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              忘れがちな「失注後の再提案ループ」を自動化し、案件の取りこぼしを完全に防ぎます。
+            </p>
+            <button className="btn-secondary" style={{ width: '100%', marginTop: '0.5rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+              自動通知を有効にする
+            </button>
           </div>
         </div>
+
       </div>
     </div>
   );

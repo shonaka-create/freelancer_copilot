@@ -1,15 +1,38 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Copy, Save, Edit2, Check } from 'lucide-react';
 
 const initialTemplates = [
-  { id: '1', name: '基本の挨拶＆自己紹介', content: '初めまして。Webエンジニアとして〇〇年活動しております...' },
-  { id: '2', name: 'ポートフォリオURL（開発）', content: '過去の開発実績については、以下のURLをご参照ください。\n- 実績1: ...\n- 実績2: ...' }
+  { id: '1', name: '基本の挨拶＆自己紹介', content: '初めまして。Webエンジニアとして〇〇年活動しております。\n\nこれまで〇〇の技術を中心にプロジェクトに参画してきました。' },
+  { id: '2', name: 'ポートフォリオURL（開発）', content: '過去の開発実績については、以下のURLをご参照ください。\n- 実績1: https://...\n- 実績2: https://...' }
 ];
 
 export default function TemplatesPage() {
-  const [templates] = useState(initialTemplates);
+  const [templates, setTemplates] = useState(initialTemplates);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleEditClick = (id: string, content: string) => {
+    setEditingId(id);
+    setEditContent(content);
+  };
+
+  const handleSave = (id: string) => {
+    setTemplates(prev => prev.map(t => t.id === id ? { ...t, content: editContent } : t));
+    setEditingId(null);
+  };
+
+  const handleCopy = async (id: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      alert('コピーに失敗しました');
+    }
+  };
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
@@ -18,27 +41,69 @@ export default function TemplatesPage() {
           <h1>手動テンプレート管理</h1>
           <p style={{ color: 'var(--text-secondary)' }}>よく使う応募文のパーツを登録してコピペを楽に。</p>
         </div>
-        <button className="btn-primary">+ 新規作成</button>
+        <button className="btn-primary" onClick={() => {
+          const newId = String(Date.now());
+          setTemplates(prev => [...prev, { id: newId, name: '新しいテンプレート', content: '' }]);
+          handleEditClick(newId, '');
+        }}>+ 新規作成</button>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
         {templates.map(tmpl => (
           <div key={tmpl.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <h3 style={{ margin: 0, fontSize: '1rem' }}>{tmpl.name}</h3>
-            <div style={{ 
-              background: '#F8FAFC', 
-              padding: '12px', 
-              borderRadius: '6px', 
-              fontSize: '0.85rem', 
-              color: 'var(--text-secondary)',
-              whiteSpace: 'pre-wrap',
-              flex: 1
-            }}>
-              {tmpl.content}
-            </div>
+            
+            {editingId === tmpl.id ? (
+              <textarea 
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                style={{
+                  background: '#FFFFFF', 
+                  border: '1px solid var(--primary-color)',
+                  padding: '12px', 
+                  borderRadius: '6px', 
+                  fontSize: '0.85rem', 
+                  fontFamily: 'var(--font-body)',
+                  resize: 'vertical',
+                  minHeight: '120px',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div style={{ 
+                background: '#F8FAFC', 
+                padding: '12px', 
+                borderRadius: '6px', 
+                fontSize: '0.85rem', 
+                color: 'var(--text-secondary)',
+                whiteSpace: 'pre-wrap',
+                flex: 1,
+                minHeight: '120px'
+              }}>
+                {tmpl.content || <span style={{ color: 'var(--text-disabled)', fontStyle: 'italic' }}>テキストがありません</span>}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn-secondary" style={{ flex: 1, padding: '6px' }}>編集</button>
-              <button className="btn-primary" style={{ flex: 1, padding: '6px' }}>コピーする</button>
+              {editingId === tmpl.id ? (
+                <button className="btn-primary" style={{ flex: 1, padding: '6px' }} onClick={() => handleSave(tmpl.id)}>
+                  <Save size={16} /> 保存する
+                </button>
+              ) : (
+                <>
+                  <button className="btn-secondary" style={{ flex: 1, padding: '6px' }} onClick={() => handleEditClick(tmpl.id, tmpl.content)}>
+                    <Edit2 size={16} /> 編集
+                  </button>
+                  <button 
+                    className="btn-primary" 
+                    style={{ flex: 1, padding: '6px', background: copiedId === tmpl.id ? 'var(--success-color)' : 'var(--primary-color)' }} 
+                    onClick={() => handleCopy(tmpl.id, tmpl.content)}
+                  >
+                    {copiedId === tmpl.id ? <Check size={16} /> : <Copy size={16} />}
+                    {copiedId === tmpl.id ? ' コピー完了' : ' コピーする'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}
