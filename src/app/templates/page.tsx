@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Copy, Save, Edit2, Check } from 'lucide-react';
 
 const initialTemplates = [
@@ -9,6 +10,7 @@ const initialTemplates = [
 ];
 
 export default function TemplatesPage() {
+  const router = useRouter();
   const [templates, setTemplates] = useState(initialTemplates);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -121,7 +123,7 @@ export default function TemplatesPage() {
             案件の募集要項やあなたの過去の実績を分析し、**今回の案件に一番刺さる提案文**をAIが自動で生成・推敲します。<br/><br/>
             無料版での応募データが貯まるほど、生成精度が向上します。
           </p>
-          <button className="btn-secondary" style={{ width: '100%', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+          <button className="btn-secondary" style={{ width: '100%', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => router.push('/pricing')}>
             Proプランにアップグレード
           </button>
         </div>
