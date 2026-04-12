@@ -67,7 +67,46 @@ ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.milestones ENABLE ROW LEVEL SECURITY;
 
--- Note: Policies need to be created for each table so users can only access their own data.
--- Example for clients:
--- CREATE POLICY "Users can manage their own clients" ON public.clients
---   FOR ALL USING (auth.uid() = user_id);
+-- ────────────────────────────────────────────────────────────
+-- RLS Policies
+-- ────────────────────────────────────────────────────────────
+
+-- user_profiles: 自分のプロフィールのみ読み書き可
+CREATE POLICY "Users can manage own profile" ON public.user_profiles
+  FOR ALL USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- applications: 自分の案件のみ
+CREATE POLICY "Users can manage own applications" ON public.applications
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- clients: 自分のクライアントのみ
+CREATE POLICY "Users can manage own clients" ON public.clients
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- projects: 自分のプロジェクトのみ
+CREATE POLICY "Users can manage own projects" ON public.projects
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ────────────────────────────────────────────────────────────
+-- Trigger: auth.users へのサインアップ時に user_profiles を自動作成
+-- ────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.user_profiles (id)
+  VALUES (new.id)
+  ON CONFLICT (id) DO NOTHING;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- ────────────────────────────────────────────────────────────
+-- 既存ユーザーの user_profiles を補完（初回セットアップ時に実行）
+-- ────────────────────────────────────────────────────────────
+INSERT INTO public.user_profiles (id)
+SELECT id FROM auth.users
+ON CONFLICT (id) DO NOTHING;

@@ -25,7 +25,7 @@ export async function getApplications() {
 // Create a new application from the form
 export async function createApplication(formData: FormData) {
   const supabase = await createClient();
-  
+
   const title = formData.get('title') as string;
   const platform = formData.get('platform') as string;
   const url = formData.get('url') as string;
@@ -36,6 +36,12 @@ export async function createApplication(formData: FormData) {
   if (!user) {
     return { success: false, error: 'User is not authenticated' };
   }
+
+  // applications.user_id は public.user_profiles(id) を参照しているため、
+  // 先に user_profiles 行を確保する（signup トリガーが未設定の場合の保険）
+  await supabase
+    .from('user_profiles')
+    .upsert({ id: user.id }, { onConflict: 'id' });
 
   const { data, error } = await supabase
     .from('applications')
