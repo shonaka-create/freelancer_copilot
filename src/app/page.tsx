@@ -11,6 +11,8 @@ const initialColumns = [
   { id: 'applied', title: '応募中' },
   { id: 'negotiating', title: '商談中' },
   { id: 'active', title: '稼働中' },
+  { id: 'completed', title: '完了 / 失注' }
+];
 
 
 function DroppableColumn({ column, children }: any) {

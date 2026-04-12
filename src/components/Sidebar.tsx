@@ -22,7 +22,15 @@ export default function Sidebar() {
 
   return (
     <nav style={{ width: '240px', background: '#FFFFFF', borderRight: '1px solid var(--surface-border)', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ fontWeight: 800, fontSize: '1.25rem', color: 'var(--primary-color)' }}>AssetFreelance</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" style={{ flexShrink: 0 }}>
+          <rect width="32" height="32" rx="6" fill="#2563EB"/>
+          <rect x="9" y="7" width="14" height="3.5" rx="1" fill="white"/>
+          <rect x="9" y="7" width="3.5" height="18" rx="1" fill="white"/>
+          <rect x="9" y="14.5" width="10" height="3.5" rx="1" fill="white"/>
+        </svg>
+        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary-color)' }}>AssetFreelance</span>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
