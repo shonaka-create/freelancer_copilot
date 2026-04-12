@@ -11,6 +11,7 @@ export default function Sidebar() {
     { name: '案件カンバン', href: '/' },
     { name: '毎日の記録・PDCA', href: '/daily' },
     { name: '定型文の管理', href: '/templates' },
+    { name: 'タスク管理', href: '/tasks' },
     { name: 'カレンダー・予定', href: '/projects' },
   ];
 
