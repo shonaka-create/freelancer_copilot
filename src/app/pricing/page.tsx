@@ -153,19 +153,19 @@ export default function PricingPage() {
 
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
-              <Zap size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> 案件に合わせたAI応募文生成
+              <Zap size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> プロジェクトチームの作成・メンバー管理
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
-              <Shield size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> 毎週末のAI・PDCA分析レポート
+              <Shield size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> ガントチャートでタスク進捗を一元管理
+            </li>
+            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
+              <CheckCircle2 size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> AI応募文生成・PDCA分析レポート
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
               <CheckCircle2 size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> 自動フォローアップ通知 (LINE / Slack)
             </li>
-            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
-              <CheckCircle2 size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} /> 時間単価・工数ウェイト分析
-            </li>
             <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
-              <CheckCircle2 size={18} color="var(--primary-color)" /> 全ての無料機能
+              <CheckCircle2 size={18} color="var(--primary-color)" /> 全ての無料機能（時間単価分析を含む）
             </li>
             <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
               <CheckCircle2 size={18} color="var(--primary-color)" /> 優先カスタマーサポート
